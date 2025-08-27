@@ -31,7 +31,7 @@ const UserSchema = new Schema<IUserDoc>(
 
     provider: {
       type: String,
-      enum: ['credentials', 'google', 'linkedin'],
+      enum: ['credentials', 'google'],
       required: true,
       default: 'credentials',
     },
@@ -40,14 +40,22 @@ const UserSchema = new Schema<IUserDoc>(
       type: Boolean,
       default: false,
     },
+    verificationCode: {
+      type: String,
+      default: null,
+    },
 
+    verificationCodeExpiry: {
+      type: Date,
+      default: null,
+    },
     formCount: {
       type: Number,
       default: 0,
     },
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 
