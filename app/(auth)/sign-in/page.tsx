@@ -31,7 +31,7 @@ const SignIn = () => {
       password: data.password
     });
     if (result?.error) {
-      toast("Incorrect Username/password");
+      toast(result.error);
     }
     if (result?.url) {
       router.replace("/dashboard");

@@ -8,6 +8,7 @@ const UserSchema = new Schema<IUserDoc>(
     username: {
       type: String,
       default: null,
+      unique: true,
       trim: true,
     },
 
