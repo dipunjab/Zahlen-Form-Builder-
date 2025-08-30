@@ -56,11 +56,12 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async signIn({ user, account }) {
             await dbConnect();
-            if (account?.provider === "google") {
-                const existingUser = await UserModel.findOne({ email: user.email });
 
-                if (!existingUser) {
-                    await UserModel.create({
+            if (account?.provider === "google") {
+                let dbUser = await UserModel.findOne({ email: user.email });
+
+                if (!dbUser) {
+                    dbUser = await UserModel.create({
                         email: user.email,
                         username: user.name,
                         avatarUrl: user.image,
@@ -68,9 +69,16 @@ export const authOptions: NextAuthOptions = {
                         isVerified: true,
                     });
                 }
+
+                // now dbUser is guaranteed to exist
+                user._id = dbUser._id.toString();
+                user.username = dbUser.username;
+                user.isVerified = dbUser.isVerified;
             }
+
             return true;
         },
+
 
         async jwt({ token, user, account }) {
             if (user) {
@@ -84,7 +92,7 @@ export const authOptions: NextAuthOptions = {
             return token;
         },
 
-        async session({session, token}){
+        async session({ session, token }) {
             if (token) {
                 session.user._id = token._id;
                 session.user.username = token.username;

@@ -40,7 +40,7 @@ const SideBar: React.FC = () => {
   const avatarSrc = session?.user?.image || "/icons/Group 3.png";
 
   return (
-    <>
+    <div className="fixed">
       <button
         aria-label="Open menu"
         onClick={() => setIsOpen(true)}
@@ -244,7 +244,7 @@ const SideBar: React.FC = () => {
           </div>
         </div>
       </aside>
-    </>
+    </div>
   );
 };
 
