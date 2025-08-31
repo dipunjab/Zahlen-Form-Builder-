@@ -1,21 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import FormModel from "@/models/Form";
 import { v2 as cloudinary } from "cloudinary";
+import dbConnect from "@/lib/dbConnect";
 
-// Cloudinary config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Helper to detect base64 images
 function isBase64Image(str: string) {
   return /^data:image\/[a-zA-Z]+;base64,/.test(str);
 }
 
-// GET: fetch all forms for a user
 export async function GET(req: NextRequest) {
+  await dbConnect();
   try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
@@ -31,33 +30,34 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST: create a new form
 export async function POST(req: NextRequest) {
+  await dbConnect();
   try {
     const data = await req.json();
-    const { title, description, fields, color, cover, logo, userId } = data;
+
+    const {
+      title,
+      description,
+      fields,
+      color,
+      cover,
+      logo,
+      userId,
+      published,      
+      publishedAt,     
+    } = data;
 
     let coverUrl = cover;
     let logoUrl = logo;
 
-    // Upload cover if base64 image
     if (cover && isBase64Image(cover)) {
-      console.log("Uploading cover image...");
       const coverUpload = await cloudinary.uploader.upload(cover, { folder: "forms/cover" });
       coverUrl = coverUpload.secure_url;
-      console.log("Cover uploaded:", coverUrl);
-    } else {
-      console.log("Cover is not an image, using as-is:", coverUrl);
     }
 
-    // Upload logo if base64 image
     if (logo && isBase64Image(logo)) {
-      console.log("Uploading logo image...");
       const logoUpload = await cloudinary.uploader.upload(logo, { folder: "forms/logo" });
       logoUrl = logoUpload.secure_url;
-      console.log("Logo uploaded:", logoUrl);
-    } else {
-      console.log("Logo is not a base64 image, skipping upload:", logoUrl);
     }
 
     const newForm = await FormModel.create({
@@ -68,7 +68,8 @@ export async function POST(req: NextRequest) {
       color: color || "#FFBF00",
       cover: coverUrl,
       logo: logoUrl,
-      published: false,
+      published: published || false,
+      publishedAt: published ? publishedAt : null, 
     });
 
     return NextResponse.json({ success: true, form: newForm });

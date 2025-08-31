@@ -29,7 +29,7 @@ const FormSchema = new Schema<Form>(
     description: { type: String },
     fields: { type: [FormFieldSchema], default: [] },
     published: { type: Boolean, default: false },
-    publishedAt: { type: Date, default: null },
+    publishedAt: { type: String, default: null },
     logo: { type: String, default: null },
     cover: { type: String, default: null },
     color: { type: String, default: "#FFBF00" }

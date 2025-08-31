@@ -3,183 +3,279 @@
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Eye, Save, PlusCircle, X } from "lucide-react";
+import Image from "next/image";
+import FormFieldEditor from "@/components/FormFieldEditor";
+import FormPreview from "@/components/FormPreview";
+import { toast, Toaster } from "sonner";
+import Loading from "@/components/Loading";
 
-// Field type
 type FormField = {
   id: string;
   label: string;
-  type: "text" | "textarea" | "email" | "number" | "dropdown" | "checkbox" | "radio" | "date" | "file";
+  type:
+    | "text"
+    | "textarea"
+    | "email"
+    | "number"
+    | "dropdown"
+    | "checkbox"
+    | "radio"
+    | "date"
+    | "file";
   required: boolean;
   options?: string[];
 };
 
 export default function CreateFormPage() {
   const { data: session, status } = useSession();
+  const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState("#FFBF00");
   const [cover, setCover] = useState<string>("");
   const [logo, setLogo] = useState<string>("");
   const [fields, setFields] = useState<FormField[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleAddField = () => {
-    const newField: FormField = {
-      id: uuid(),
-      label: "",
-      type: "text",
-      required: false,
-      options: [],
-    };
-    setFields([...fields, newField]);
+    setFields((prev) => [
+      ...prev,
+      {
+        id: uuid(),
+        label: "",
+        type: "text",
+        required: false,
+        options: [],
+      },
+    ]);
   };
 
   const handleFieldChange = (id: string, key: keyof FormField, value: any) => {
-    setFields(fields.map(f => (f.id === id ? { ...f, [key]: value } : f)));
+    setFields((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, [key]: value } : f))
+    );
   };
 
   const handleRemoveField = (id: string) => {
-    setFields(fields.filter(f => f.id !== id));
+    setFields((prev) => prev.filter((f) => f.id !== id));
   };
 
-  const handleImageUpload = (file: File, setter: (str: string) => void) => {
+  const handleImageUpload = (file: File, setter: (url: string) => void) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      setter(reader.result as string); // base64 string
-      console.log("Image loaded:", file.name);
+      setter(reader.result as string);
     };
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = async () => {
-    if (!session?.user?.email) {
-      alert("You must be logged in to create a form");
+  const generateFormId = () => {
+    return new Date().toISOString().replace(/[^0-9]/g, "");
+  };
+
+  const handleSubmit = async (publish: boolean) => {
+    if (!session?.user?._id) {
+      toast.error("You must be logged in to create a form");
       return;
     }
+
+    const formId = generateFormId();
+    const slugTitle = encodeURIComponent(title.trim().replace(/\s+/g, "-"));
+    const publishedUrl = publish ? `/publishedForm/${slugTitle}/${formId}` : null;
 
     try {
       const response = await fetch("/api/form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: formId,
           title,
           description,
           color,
           cover,
           logo,
           fields,
-          userId: session.user.email, // Use logged-in user's email as ID
+          userId: session.user._id,
+          published: publish,
+          publishedAt: publishedUrl,
         }),
       });
+
       const data = await response.json();
-      console.log("Form created:", data);
-      alert("Form created successfully!");
+
+      if (!data.success) {
+        toast.error("Error saving form");
+        return;
+      }
+
+      if (publish && publishedUrl) {
+        router.push(publishedUrl);
+      } else {
+        toast.success("Form saved as draft");
+      }
     } catch (err) {
       console.error("Error creating form:", err);
+      toast.error("Something went wrong");
     }
   };
 
-  if (status === "loading") return <div>Loading...</div>;
+  if (status === "loading") return <Loading message="Loading..."/>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Create New Form</h1>
-
-      <div className="space-y-2">
-        <label className="font-semibold">Title</label>
-        <input
-          className="border p-2 w-full rounded"
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="font-semibold">Description</label>
-        <textarea
-          className="border p-2 w-full rounded"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="font-semibold">Color (or hex)</label>
-        <input type="color" value={color} onChange={e => setColor(e.target.value)} />
-      </div>
-
-      <div className="space-y-2">
-        <label className="font-semibold">Cover (image or color string)</label>
-        <input type="file" onChange={e => e.target.files && handleImageUpload(e.target.files[0], setCover)} />
-      </div>
-
-      <div className="space-y-2">
-        <label className="font-semibold">Logo (image)</label>
-        <input type="file" onChange={e => e.target.files && handleImageUpload(e.target.files[0], setLogo)} />
-      </div>
-
-      <div className="space-y-2">
-        <h2 className="text-xl font-semibold">Fields</h2>
-        {fields.map((field) => (
-          <div key={field.id} className="border p-3 rounded space-y-2">
-            <label>Label:</label>
-            <input
-              className="border p-1 w-full rounded"
-              value={field.label}
-              onChange={e => handleFieldChange(field.id, "label", e.target.value)}
-            />
-
-            <label>Type:</label>
-            <select
-              className="border p-1 rounded w-full"
-              value={field.type}
-              onChange={e => handleFieldChange(field.id, "type", e.target.value)}
-            >
-              <option value="text">Text</option>
-              <option value="textarea">Textarea</option>
-              <option value="email">Email</option>
-              <option value="number">Number</option>
-              <option value="dropdown">Dropdown</option>
-              <option value="checkbox">Checkbox</option>
-              <option value="radio">Radio</option>
-              <option value="date">Date</option>
-              <option value="file">File</option>
-            </select>
-
-            {(field.type === "dropdown" || field.type === "checkbox" || field.type === "radio") && (
-              <input
-                className="border p-1 w-full rounded"
-                placeholder="Comma-separated options"
-                value={field.options?.join(",") || ""}
-                onChange={e => handleFieldChange(field.id, "options", e.target.value.split(","))}
-              />
-            )}
-
-            <label className="inline-flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={field.required}
-                onChange={e => handleFieldChange(field.id, "required", e.target.checked)}
-              />
-              <span>Required</span>
-            </label>
-
-            <button
-              className="bg-red-500 text-white px-3 py-1 rounded"
-              onClick={() => handleRemoveField(field.id)}
-            >
-              Remove Field
-            </button>
-          </div>
-        ))}
-
-        <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleAddField}>
-          Add Field
+    <div className="w-full relative">
+      
+      {/* Toolbar */}
+      <div className="fixed top-2 right-4 z-10 flex gap-4">
+        <button
+          onClick={() => setShowPreview(true)}
+          className="flex items-center gap-1 px-4 py-2 border rounded-md"
+        >
+          <Eye className="w-4 h-4" />
+          Preview
+        </button>
+        <button
+          onClick={() => handleSubmit(false)}
+          className="flex items-center gap-1 px-4 py-2 border rounded-md"
+        >
+          <Save className="w-4 h-4" />
+          Save
+        </button>
+        <button
+          onClick={() => handleSubmit(true)}
+          className="bg-amber-300 rounded-full px-5 py-2 text-sm font-semibold text-gray-700"
+        >
+          PUBLISH
         </button>
       </div>
 
-      <button className="bg-blue-600 text-white px-6 py-2 rounded" onClick={handleSubmit}>
-        Create Form
-      </button>
+      {/* Main Form */}
+      <div className="mt-16 p-6 gap-6 lg:ml-56 space-y-8">
+        <input
+          className="w-full text-3xl font-bold placeholder:text-gray-500 bg-transparent outline-none"
+          placeholder="Untitled Form"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+
+        <textarea
+          className="w-full text-md placeholder:text-gray-600 bg-transparent outline-none resize-none"
+          placeholder="Form description..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+
+        {/* Cover Upload */}
+        <div className="space-y-2">
+          <label className="font-medium text-gray-700">Cover Image</label>
+          <div className="flex items-center gap-4 flex-wrap">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                e.target.files && handleImageUpload(e.target.files[0], setCover)
+              }
+            />
+            {cover && (
+              <button
+                onClick={() => setCover("")}
+                className="text-red-500 text-sm underline ml-2"
+              >
+                Remove Image
+              </button>
+            )}
+          </div>
+          <div className="w-64 h-36 border rounded overflow-hidden mt-2">
+            {cover ? (
+              <Image
+                src={cover}
+                alt="Cover Preview"
+                width={256}
+                height={144}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                No cover uploaded
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Logo Upload */}
+        <div className="space-y-2">
+          <label className="font-medium text-gray-700">Logo</label>
+          <div className="flex items-center gap-4">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                e.target.files && handleImageUpload(e.target.files[0], setLogo)
+              }
+            />
+            {logo && (
+              <button
+                onClick={() => setLogo("")}
+                className="text-red-500 text-sm underline"
+              >
+                Remove Logo
+              </button>
+            )}
+          </div>
+          {logo && (
+            <Image
+              src={logo}
+              alt="Logo Preview"
+              width={150}
+              height={40}
+              className="h-10 w-auto object-contain border rounded mt-2"
+            />
+          )}
+        </div>
+
+        {/* Form Fields */}
+        <div className="space-y-4">
+          <label className="font-medium text-gray-700">Fields</label>
+          {fields.map((field) => (
+            <FormFieldEditor
+              key={field.id}
+              field={field}
+              onChange={handleFieldChange}
+              onRemove={handleRemoveField}
+            />
+          ))}
+          <button
+            onClick={handleAddField}
+            className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-black"
+          >
+            <PlusCircle className="w-5 h-5" />
+            Add Field
+          </button>
+        </div>
+      </div>
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-auto p-6 relative">
+            <button
+              onClick={() => setShowPreview(false)}
+              className="absolute top-3 right-3 text-gray-600 hover:text-black"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <FormPreview
+              title={title}
+              description={description}
+              color={color}
+              cover={cover}
+              logo={logo}
+              fields={fields}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

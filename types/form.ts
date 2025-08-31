@@ -24,7 +24,7 @@ export interface Form {
   description?: string;
   fields: FormField[];
   published?: boolean;           
-  publishedAt?: Date;            
+  publishedAt?: string;            
   logo?: string;                 
   cover?: string;                
   color?: string;                
