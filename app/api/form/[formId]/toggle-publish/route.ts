@@ -4,11 +4,12 @@ import Form from "@/models/Form";
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { formId: string } }
+  {params}: { params: { formId: string } }
 ) {
   await dbConnect();
 
-  const { formId } = context.params;
+    const formId =  params.formId;
+
 
   if (!formId) {
     return NextResponse.json(
@@ -27,7 +28,6 @@ export async function PATCH(
       );
     }
 
-    // ✅ Just toggle published status
     form.published = !form.published;
 
     await form.save();

@@ -1,4 +1,3 @@
-// components/SideBar.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -6,13 +5,10 @@ import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import {
   Settings,
-  FileText,
   Trash2,
   MessageSquare,
   Plus,
-  ChevronRight,
   Info,
-  Check,
   User,
 } from "lucide-react";
 import Link from "next/link";
@@ -27,7 +23,7 @@ const SideBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const [forms, setForms] = useState<Form[]>([]);
-  const [trashForms, setTrashForms] = useState<typeof forms>([]);
+
 
   useEffect(() => {
     if (!session?.user?._id) return;
@@ -38,7 +34,6 @@ const SideBar: React.FC = () => {
         const data = await res.json();
         if (data.success) {
           setForms(data.forms);
-          setTrashForms(data.trashedForms || []);
         }
       } catch (error) {
         console.error("Failed to fetch forms:", error);
@@ -60,26 +55,6 @@ const SideBar: React.FC = () => {
 
   const avatarSrc = session?.user?.image || "/icons/Group 3.png";
 
-  const handleDeleteForm = async (formId: string, title: string) => {
-    const confirmDelete = window.confirm(`Delete form "${title}"?`);
-    if (!confirmDelete) return;
-
-    try {
-      const res = await fetch(`/api/form/${formId}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setForms((prev) => prev.filter((form) => form._id !== formId));
-      } else {
-        alert("Failed to delete form.");
-      }
-    } catch (err) {
-      console.error("Error deleting form:", err);
-      alert("An error occurred while deleting the form.");
-    }
-  };
 
 
   return (
@@ -87,7 +62,7 @@ const SideBar: React.FC = () => {
       <button
         aria-label="Open menu"
         onClick={() => setIsOpen(true)}
-        className={` ${isOpen ? "hidden" : ""} md:hidden fixed top-3 left-3 z-[60] bg-[#FFBF00] p-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFBF00]`}
+        className={` ${isOpen ? "hidden" : ""} lg:hidden fixed top-3 left-3 z-[60] bg-[#FFBF00] p-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFBF00]`}
       >
         <div className="w-5 h-4 relative">
           <span
@@ -119,8 +94,8 @@ const SideBar: React.FC = () => {
         className={`fixed top-0 left-0 h-screen z-50 border-r-4 border-[#FFBF00] ${SIDEBAR_WIDTH}
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? "translate-x-0 shadow-lg" : "-translate-x-full"}
-          md:translate-x-0 md:static md:flex md:flex-col md:h-screen
-          bg-[#FFBF00] md:bg-white text-black`}
+          lg:translate-x-0 lg:static lg:flex lg:flex-col lg:h-screen
+          bg-[#FFBF00] lg:bg-white text-black`}
       >
         <div className="flex flex-col h-full gap-3 px-3 py-3">
           <div className="flex flex-col gap-2">

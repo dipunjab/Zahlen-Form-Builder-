@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     domains: [
       "lh3.googleusercontent.com",
       "avatars.githubusercontent.com",
+      'res.cloudinary.com'
       // add any other hosts you expect (e.g. your CDN)
     ],
     // optional: remotePatterns for more flexible matching
