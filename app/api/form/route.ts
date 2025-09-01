@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       cover: coverUrl,
       logo: logoUrl,
       published: published || false,
-      publishedAt: published ? publishedAt : null, 
+      publishedAt:  publishedAt || null, 
     });
 
     return NextResponse.json({ success: true, form: newForm });

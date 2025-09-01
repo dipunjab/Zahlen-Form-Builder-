@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Form } from "@/types/form";
+import SidebarWorkspace from "./subSideBarComp/SidebarWorkspace";
 
 const SIDEBAR_WIDTH = "w-56";
 
@@ -59,8 +60,30 @@ const SideBar: React.FC = () => {
 
   const avatarSrc = session?.user?.image || "/icons/Group 3.png";
 
+  const handleDeleteForm = async (formId: string, title: string) => {
+    const confirmDelete = window.confirm(`Delete form "${title}"?`);
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(`/api/form/${formId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setForms((prev) => prev.filter((form) => form._id !== formId));
+      } else {
+        alert("Failed to delete form.");
+      }
+    } catch (err) {
+      console.error("Error deleting form:", err);
+      alert("An error occurred while deleting the form.");
+    }
+  };
+
+
   return (
-    <div className="fixed">
+    <div className="fixed z-10">
       <button
         aria-label="Open menu"
         onClick={() => setIsOpen(true)}
@@ -186,52 +209,8 @@ const SideBar: React.FC = () => {
             </div>
 
             {/* Forms (compact) */}
-            <div className="flex flex-col gap-1 mt-1">
-              {forms.slice(0, 2).map((form) => (
-                <Link href={`${form.publishedAt}`} 
-                  key={form._id}>
-                <div
-                  className="flex items-center justify-between p-1.5 rounded border border-transparent hover:border-gray-100 hover:bg-gray-50 transition-transform transform hover:translate-x-1 cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <FileText size={14} />
-                    <div className="text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate max-w-[120px]">{form?.title}</span>
-                        {form.published && (
-                          <span
-                            title="Published"
-                            className="inline-flex items-center gap-1 text-green-600 text-xs"
-                          >
-                            <Check size={12} />
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+            <SidebarWorkspace forms={forms} setForms={setForms} />
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      className="p-1 rounded hover:bg-gray-100 transition cursor-pointer"
-                      aria-label="More options"
-                    >
-                      <ChevronRight size={14} />
-                    </button>
-                    <button
-                      className="p-1 rounded hover:bg-red-50 transition cursor-pointer"
-                      aria-label="Delete form"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-                </Link>
-              ))}
-
-              {forms.length > 2 && (
-                <div className="text-xs text-gray-600 mt-1">Explore more...</div>
-              )}
-            </div>
           </div>
 
 

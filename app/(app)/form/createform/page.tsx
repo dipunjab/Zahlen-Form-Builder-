@@ -15,15 +15,15 @@ type FormField = {
   id: string;
   label: string;
   type:
-    | "text"
-    | "textarea"
-    | "email"
-    | "number"
-    | "dropdown"
-    | "checkbox"
-    | "radio"
-    | "date"
-    | "file";
+  | "text"
+  | "textarea"
+  | "email"
+  | "number"
+  | "dropdown"
+  | "checkbox"
+  | "radio"
+  | "date"
+  | "file";
   required: boolean;
   options?: string[];
 };
@@ -39,6 +39,8 @@ export default function CreateFormPage() {
   const [logo, setLogo] = useState<string>("");
   const [fields, setFields] = useState<FormField[]>([]);
   const [showPreview, setShowPreview] = useState(false);
+
+  const [buttonLoading, setButtonLoading] = useState<"save" | "publish" | null>(null);
 
   const handleAddField = () => {
     setFields((prev) => [
@@ -81,9 +83,11 @@ export default function CreateFormPage() {
       return;
     }
 
+    setButtonLoading(publish ? "publish" : "save");
+
     const formId = generateFormId();
     const slugTitle = encodeURIComponent(title.trim().replace(/\s+/g, "-"));
-    const publishedUrl = publish ? `/publishedForm/${slugTitle}/${formId}` : null;
+    const publishedUrl = `/publishedForm/${slugTitle}/${formId}`;
 
     try {
       const response = await fetch("/api/form", {
@@ -104,6 +108,7 @@ export default function CreateFormPage() {
       });
 
       const data = await response.json();
+      setButtonLoading(null);
 
       if (!data.success) {
         toast.error("Error saving form");
@@ -118,36 +123,49 @@ export default function CreateFormPage() {
     } catch (err) {
       console.error("Error creating form:", err);
       toast.error("Something went wrong");
+      setButtonLoading(null);
     }
   };
 
-  if (status === "loading") return <Loading message="Loading..."/>;
+  if (status === "loading") return <Loading message="Loading..." />;
 
   return (
     <div className="w-full relative">
-      
+
       {/* Toolbar */}
       <div className="fixed top-2 right-4 z-10 flex gap-4">
         <button
           onClick={() => setShowPreview(true)}
-          className="flex items-center gap-1 px-4 py-2 border rounded-md"
+          className="flex items-center gap-1 bg-white px-4 py-2 border rounded-md cursor-pointer"
         >
           <Eye className="w-4 h-4" />
           Preview
         </button>
         <button
           onClick={() => handleSubmit(false)}
-          className="flex items-center gap-1 px-4 py-2 border rounded-md"
+          className="flex items-center gap-1 px-4 bg-white py-2 border rounded-md cursor-pointer"
+          disabled={buttonLoading === "save"}
         >
-          <Save className="w-4 h-4" />
+          {buttonLoading === "save" ? (
+            <span className="animate-spin w-4 h-4 border-2 border-t-transparent border-gray-600 rounded-full" />
+          ) : (
+            <Save className="w-4 h-4" />
+          )}
           Save
         </button>
+
         <button
           onClick={() => handleSubmit(true)}
-          className="bg-amber-300 rounded-full px-5 py-2 text-sm font-semibold text-gray-700"
+          className="bg-amber-300 rounded-full px-5 py-2 text-sm font-semibold text-gray-700 cursor-pointer"
+          disabled={buttonLoading === "publish"}
         >
-          PUBLISH
+          {buttonLoading === "publish" ? (
+            <span className="animate-spin w-4 h-4 border-2 border-t-transparent border-gray-700 rounded-full inline-block" />
+          ) : (
+            "PUBLISH"
+          )}
         </button>
+
       </div>
 
       {/* Main Form */}
