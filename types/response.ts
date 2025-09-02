@@ -1,7 +1,7 @@
 import { Types, Document } from "mongoose";
 
 export interface FieldResponse {
-  fieldId: string;      
+  label: string;      
   value: any;           
 }
 
