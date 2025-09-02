@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
                         throw new Error("Please verify your account")
                     }
 
-                    const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
+                    const isPasswordCorrect = await bcrypt.compare(credentials.password, user.passwordHash);
                     if (isPasswordCorrect) {
                         return user;
                     } else {
