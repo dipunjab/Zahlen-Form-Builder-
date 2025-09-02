@@ -70,7 +70,7 @@ const SidebarWorkspace: React.FC<SidebarWorkspaceProps> = ({ forms, setForms }) 
           <Link href={`/form/${form._id}`} className="flex items-center gap-2 flex-1">
             <FileText size={14} />
             <div className="text-sm flex items-center gap-2">
-              <span className="truncate max-w-[120px]">{form?.title}</span>
+              <span className="truncate max-w-[60px]">{form?.title}</span>
               {form.published && (
                 <span title="Published" className="inline-flex items-center gap-1 text-green-600 text-xs">
                   <Check size={12} />

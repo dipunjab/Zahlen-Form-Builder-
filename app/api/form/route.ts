@@ -43,8 +43,7 @@ export async function POST(req: NextRequest) {
       cover,
       logo,
       userId,
-      published,      
-      publishedAt,     
+      published,
     } = data;
 
     let coverUrl = cover;
@@ -60,7 +59,7 @@ export async function POST(req: NextRequest) {
       logoUrl = logoUpload.secure_url;
     }
 
-    const newForm = await FormModel.create({
+    const formDoc = await FormModel.create({
       userId,
       title,
       description,
@@ -69,12 +68,18 @@ export async function POST(req: NextRequest) {
       cover: coverUrl,
       logo: logoUrl,
       published: published || false,
-      publishedAt:  publishedAt || null, 
     });
 
-    return NextResponse.json({ success: true, form: newForm });
+    const slugTitle = encodeURIComponent(title.trim().replace(/\s+/g, "-"));
+    const publishedUrl = `/publishedForm/${slugTitle}/${formDoc._id}`;
+
+    formDoc.publishedAt = publishedUrl;
+    await formDoc.save();
+
+    return NextResponse.json({ success: true, formId: formDoc._id });
   } catch (error) {
     console.error("Error creating form:", error);
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }
+

@@ -13,4 +13,5 @@ export const formSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   fields: z.array(fieldSchema).min(1),
+  publiished: z.boolean()
 });

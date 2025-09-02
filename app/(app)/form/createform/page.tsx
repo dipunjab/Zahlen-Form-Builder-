@@ -8,7 +8,7 @@ import { Eye, Save, PlusCircle, X } from "lucide-react";
 import Image from "next/image";
 import FormFieldEditor from "@/components/FormFieldEditor";
 import FormPreview from "@/components/FormPreview";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import Loading from "@/components/Loading";
 
 type FormField = {
@@ -30,7 +30,6 @@ type FormField = {
 
 export default function CreateFormPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -73,9 +72,6 @@ export default function CreateFormPage() {
     reader.readAsDataURL(file);
   };
 
-  const generateFormId = () => {
-    return new Date().toISOString().replace(/[^0-9]/g, "");
-  };
 
   const handleSubmit = async (publish: boolean) => {
     if (!session?.user?._id) {
@@ -85,16 +81,11 @@ export default function CreateFormPage() {
 
     setButtonLoading(publish ? "publish" : "save");
 
-    const formId = generateFormId();
-    const slugTitle = encodeURIComponent(title.trim().replace(/\s+/g, "-"));
-    const publishedUrl = `/publishedForm/${slugTitle}/${formId}`;
-
     try {
       const response = await fetch("/api/form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: formId,
           title,
           description,
           color,
@@ -103,7 +94,6 @@ export default function CreateFormPage() {
           fields,
           userId: session.user._id,
           published: publish,
-          publishedAt: publishedUrl,
         }),
       });
 
@@ -115,8 +105,8 @@ export default function CreateFormPage() {
         return;
       }
 
-      if (publish && publishedUrl) {
-        router.push(publishedUrl);
+      if (publish && data.form.publishedAt) {
+         toast.success("Form Published");;
       } else {
         toast.success("Form saved as draft");
       }
