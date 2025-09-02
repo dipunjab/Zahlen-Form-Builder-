@@ -121,9 +121,7 @@ export default function FormsTable({ forms: initialForms }: { forms: Form[] }) {
                         ) : (
                           <div className="text-xs text-gray-400">No description</div>
                         )}
-                        {form.publishedAt && (
-                          <div className="mt-1 text-xs text-gray-500">URL: <span className="text-indigo-600">{form.publishedAt}</span></div>
-                        )}
+                        {/* removed publishedAt display per request */}
                       </div>
                     </div>
                   </td>
@@ -148,15 +146,7 @@ export default function FormsTable({ forms: initialForms }: { forms: Form[] }) {
                         <a href={form.publishedAt} target="_blank" rel="noreferrer" className="text-sm text-indigo-600 hover:underline inline-flex items-center gap-1">
                           <Globe className="w-4 h-4" /> View
                         </a>
-                      ) : (
-                        <button
-                          onClick={() => {/* optionally open preview modal */}}
-                          className="text-sm text-gray-600 hover:text-gray-900"
-                          title="Preview"
-                        >
-                          Preview
-                        </button>
-                      )}
+                      ) : null}
 
                       <div className="relative">
                         <button
@@ -241,6 +231,9 @@ export default function FormsTable({ forms: initialForms }: { forms: Form[] }) {
                   <div className="text-xs text-gray-500">{new Date(form.createdAt).toLocaleDateString()}</div>
 
                   <div className="flex items-center gap-2">
+                    {form.published && form.publishedAt ? (
+                      <a href={form.publishedAt} target="_blank" rel="noreferrer" className="text-sm text-indigo-600">View</a>
+                    ) : null}
                     <Link href={`/form/edit/${form._id}`} className="text-sm text-indigo-600">Edit</Link>
                     <button onClick={() => handleTogglePublish(form._id)} className="text-sm text-gray-700" disabled={!!loadingIds[form._id]}>
                       {loadingIds[form._id] ? "..." : (form.published ? "Unpublish" : "Publish")}
