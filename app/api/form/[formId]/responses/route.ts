@@ -5,11 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { formId: string } }
+  { params }:any
 ) {
   try {
     await dbConnect();
-    const { formId } = params;
+    const { formId } = await params;
 
     const responses = await ResponseForm.find({ formId }).sort({ createdAt: -1 });
 
@@ -23,7 +23,7 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { formId: string } }
+  { params }: any 
 ) {
   try {
     await dbConnect();

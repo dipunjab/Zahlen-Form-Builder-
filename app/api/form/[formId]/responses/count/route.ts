@@ -4,12 +4,12 @@ import ResponseForm from "@/models/ResponseForm";
 
 export async function GET(
   req: Request,
-  { params }: { params: { formId: string } }
+  { params }: any
 ) {
   await dbConnect();
 
   try {
-    const { formId } = params;
+    const { formId } = await params;
 
     const responseCount = await ResponseForm.countDocuments({
       formId: formId,
