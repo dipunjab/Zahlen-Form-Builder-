@@ -3,7 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Trash2, Eye, EyeOff, Check, Loader2, ChevronLeft, Copy, Edit2 } from "lucide-react";
+import { Trash2, Eye, EyeOff, Check, Loader2, ChevronLeft, Edit2 } from "lucide-react";
+import AboutTab from "@/components/tabs/AboutTab";
+import ResponseTabs from "@/components/tabs/ResponseTabs";
+import SettingsTab from "@/components/tabs/SettingsTab";
 
 type Form = {
   _id: string;
@@ -12,7 +15,7 @@ type Form = {
   createdAt: string;
   published: boolean;
   responseCount?: number;
-  publishedAt?: string | null; 
+  publishedAt?: string | null;
 };
 
 export default function FormPage() {
@@ -25,7 +28,6 @@ export default function FormPage() {
   const [activeTab, setActiveTab] = useState<"about" | "responses" | "settings">("about");
   const [deleting, setDeleting] = useState(false);
   const [toggling, setToggling] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   // Fetch form
   useEffect(() => {
@@ -43,6 +45,26 @@ export default function FormPage() {
     };
     if (formId) fetchForm();
   }, [formId]);
+
+  // Fetch response count
+  useEffect(() => {
+    const fetchResponseCount = async () => {
+      if (!formId) return;
+
+      try {
+        const res = await fetch(`/api/form/${formId}/responses/count`);
+        const data = await res.json();
+        if (data.success) {
+          setForm((prev) => prev ? { ...prev, responseCount: data.count } : prev);
+        }
+      } catch (err) {
+        console.error("Error fetching response count:", err);
+      }
+    };
+
+    fetchResponseCount();
+  }, [formId]);
+
 
   const togglePublish = async () => {
     try {
@@ -79,37 +101,8 @@ export default function FormPage() {
     }
   };
 
-  // Build a full URL for copy behavior
-  const getFullPublishedUrl = () => {
-    if (!form?.publishedAt) return "";
-    const stored = form.publishedAt;
-    // If already absolute, return as-is
-    if (/^https?:\/\//i.test(stored)) return stored;
 
-    // Prefer an explicit app URL at build/runtime (useful in production)
-    const envUrl = typeof process !== "undefined" ? (process.env.NEXT_PUBLIC_APP_URL || "") : "";
-    try {
-      const origin = envUrl.replace(/\/$/, "") || (typeof window !== "undefined" ? window.location.origin : "");
-      if (!origin) return stored;
-      return origin + (stored.startsWith("/") ? stored : `/${stored}`);
-    } catch (e) {
-      // fallback
-      return stored.startsWith("/") ? `${window.location.origin}${stored}` : `${window.location.origin}/${stored}`;
-    }
-  };
 
-  const copyPublishUrl = async () => {
-    const full = getFullPublishedUrl();
-    if (!full) return;
-    try {
-      await navigator.clipboard.writeText(full);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("copy failed", err);
-      alert("Failed to copy URL. Try selecting and copying manually.");
-    }
-  };
 
   const goToEditor = () => {
     if (!formId) return;
@@ -164,11 +157,10 @@ export default function FormPage() {
             <button
               onClick={togglePublish}
               disabled={toggling}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium shadow-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFBF00]/50 ${
-                form.published
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium shadow-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFBF00]/50 ${form.published
                   ? "bg-[#FFBF00] text-black hover:brightness-95"
                   : "bg-[#FFBF00] text-black hover:brightness-95"
-              }`}
+                }`}
             >
               {toggling ? (
                 <span className="flex items-center gap-2"><Loader2 className="animate-spin" size={16} /> Processing</span>
@@ -208,9 +200,8 @@ export default function FormPage() {
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
-                className={`px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap ${
-                  activeTab === t.id ? "bg-[#FFBF00] text-black" : "text-gray-600 hover:bg-gray-50"
-                }`}
+                className={`px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap ${activeTab === t.id ? "bg-[#FFBF00] text-black" : "text-gray-600 hover:bg-gray-50"
+                  }`}
               >
                 {t.label}
               </button>
@@ -219,86 +210,15 @@ export default function FormPage() {
 
           <div className="mt-6">
             {activeTab === "about" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h3 className="text-sm font-semibold text-gray-700">Basic details</h3>
-                    <div className="mt-3 text-sm text-gray-700 space-y-2">
-                      <div className="flex justify-between">
-                        <div>Title</div>
-                        <div className="font-medium text-gray-900">{form.title}</div>
-                      </div>
-                      <div className="flex justify-between">
-                        <div>Created</div>
-                        <div className="text-gray-700">{new Date(form.createdAt).toLocaleString()}</div>
-                      </div>
-                      <div className="flex justify-between">
-                        <div>Status</div>
-                        <div className="font-medium">{form.published ? "Published" : "Draft"}</div>
-                      </div>
-                    </div>
-
-                    <div className="mt-4">
-                      <h4 className="text-sm font-semibold text-gray-700">Publish URL</h4>
-                      {form.publishedAt ? (
-                        <div className="mt-2 flex gap-2 items-center">
-                          <input readOnly value={getFullPublishedUrl()} className="flex-1 text-sm px-3 py-2 rounded-md border bg-white" />
-                          <button onClick={copyPublishUrl} className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-[#FFBF00] text-black font-medium">
-                            <Copy size={14} />
-                            {copied ? "Copied" : "Copy"}
-                          </button>
-                        </div>
-                      ) : (
-                        <p className="mt-2 text-sm text-gray-500">No public URL yet. Publish the form to get a shareable link.</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              <AboutTab form={form} />
             )}
 
             {activeTab === "responses" && (
-              <div>
-                <p className="text-gray-600">Responses tab  we&apos;ll show recent responses, export options, and simple analytics here.</p>
-                <div className="mt-4 p-4 bg-gray-50 rounded-md">(Responses UI placeholder)</div>
-              </div>
+              <ResponseTabs />
             )}
 
             {activeTab === "settings" && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h3 className="text-sm font-semibold">Publishing</h3>
-                    <p className="text-sm text-gray-500">Control whether this form is publicly accessible.</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={togglePublish}
-                      disabled={toggling}
-                      className={`px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFBF00]/40 ${
-                        form.published ? "bg-[#FFBF00] text-black" : "bg-white text-gray-700 border"
-                      }`}
-                    >
-                      {toggling ? (<span className="flex items-center gap-2"><Loader2 className="animate-spin" size={16} /> Processing</span>) : form.published ? (<><EyeOff size={14}/> Unpublish</>) : (<><Eye size={14}/> Publish</>) }
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-lg border bg-white">
-                  <h3 className="text-sm font-semibold">Danger zone</h3>
-                  <p className="text-sm text-gray-500 mt-1">Deleting the form will remove all responses permanently.</p>
-                  <div className="mt-4">
-                    <button
-                      onClick={deleteForm}
-                      disabled={deleting}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-red-600 text-white"
-                    >
-                      {deleting ? <Loader2 className="animate-spin" size={14} /> : <Trash2 size={14} />}
-                      <span>{deleting ? "Deleting…" : "Delete form"}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <SettingsTab form={form} togglePublish={togglePublish} toggling={toggling} deleteForm={deleteForm} deleting={deleting} />
             )}
           </div>
         </div>
