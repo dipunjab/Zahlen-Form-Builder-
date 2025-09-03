@@ -129,7 +129,7 @@ export default function FormPage() {
         transition={{ duration: 0.28 }}
         className="bg-white rounded-2xl shadow-sm p-6"
       >
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-start sm:justify-between gap-4">
           <div>
             <button
               onClick={() => router.back()}
@@ -153,11 +153,11 @@ export default function FormPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap gap-2 justify-end max-w-full overflow-x-auto">
             <button
               onClick={togglePublish}
               disabled={toggling}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium shadow-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFBF00]/50 ${form.published
+              className={`min-w-[100px] inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFBF00]/50 ${form.published
                   ? "bg-[#FFBF00] text-black hover:brightness-95"
                   : "bg-[#FFBF00] text-black hover:brightness-95"
                 }`}
@@ -173,7 +173,7 @@ export default function FormPage() {
 
             <button
               onClick={goToEditor}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border text-sm font-medium shadow-sm hover:bg-gray-50"
+              className="min-w-[100px] inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-white border text-sm font-medium shadow-sm hover:bg-gray-50"
             >
               <Edit2 size={16} /> Edit
             </button>
@@ -181,11 +181,12 @@ export default function FormPage() {
             <button
               onClick={deleteForm}
               disabled={deleting}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-red-600 text-white text-sm shadow-sm hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-red-300"
+              className="min-w-[100px] inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-red-600 text-white text-sm shadow-sm hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-red-300"
             >
               {deleting ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
               <span>{deleting ? "Deleting" : "Delete"}</span>
             </button>
+
           </div>
         </div>
 

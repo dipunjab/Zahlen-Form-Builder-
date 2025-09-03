@@ -195,9 +195,6 @@ const SideBar: React.FC = () => {
               <a className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100 transition cursor-pointer text-sm">
                 <MessageSquare size={14} /> Feedback
               </a>
-              <a className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100 transition cursor-pointer text-sm">
-                <Trash2 size={14} /> Trash
-              </a>
             </div>
 
             <div className="mt-1 font-semibold text-sm">Help</div>

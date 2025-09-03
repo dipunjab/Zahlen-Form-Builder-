@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Eye, Save, PlusCircle, X } from "lucide-react";
 import Image from "next/image";
 import FormFieldEditor from "@/components/FormFieldEditor";
 import FormPreview from "@/components/FormPreview";
 import { toast } from "sonner";
 import Loading from "@/components/Loading";
+import { redirect } from "next/navigation";
 
 type FormField = {
   id: string;
@@ -79,6 +79,28 @@ export default function CreateFormPage() {
       return;
     }
 
+    // ✅ Client-side validation
+    if (!title.trim()) {
+      toast.error("Form title is required");
+      return;
+    }
+
+    if (!description.trim()) {
+      toast.error("Form description is required");
+      return;
+    }
+
+    if (fields.length === 0) {
+      toast.error("Add at least one field to the form");
+      return;
+    }
+
+    const hasInvalidField = fields.some(f => !f.label.trim());
+    if (hasInvalidField) {
+      toast.error("Each field must have a label");
+      return;
+    }
+
     setButtonLoading(publish ? "publish" : "save");
 
     try {
@@ -106,9 +128,11 @@ export default function CreateFormPage() {
       }
 
       if (publish && data.form.publishedAt) {
-         toast.success("Form Published");;
+        toast.success("Form Published");
+        redirect("/dashboard")
       } else {
         toast.success("Form saved as draft");
+        redirect("/dashboard")
       }
     } catch (err) {
       console.error("Error creating form:", err);
@@ -117,24 +141,26 @@ export default function CreateFormPage() {
     }
   };
 
+
   if (status === "loading") return <Loading message="Loading..." />;
 
   return (
     <div className="w-full relative">
 
       {/* Toolbar */}
-      <div className="fixed top-2 right-4 z-10 flex gap-4">
+      <div className="fixed top-2 right-2 z-10 flex flex-row gap-1 sm:gap-3 items-end sm:items-center max-w-[80vw]">
         <button
           onClick={() => setShowPreview(true)}
-          className="flex items-center gap-1 bg-white px-4 py-2 border rounded-md cursor-pointer"
+          className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm border rounded bg-white hover:bg-gray-50 whitespace-nowrap"
         >
           <Eye className="w-4 h-4" />
           Preview
         </button>
+
         <button
           onClick={() => handleSubmit(false)}
-          className="flex items-center gap-1 px-4 bg-white py-2 border rounded-md cursor-pointer"
           disabled={buttonLoading === "save"}
+          className="flex items-center gap-1 px-2 py-1 text-xs sm:text-sm border rounded bg-white hover:bg-gray-50 whitespace-nowrap"
         >
           {buttonLoading === "save" ? (
             <span className="animate-spin w-4 h-4 border-2 border-t-transparent border-gray-600 rounded-full" />
@@ -146,8 +172,8 @@ export default function CreateFormPage() {
 
         <button
           onClick={() => handleSubmit(true)}
-          className="bg-amber-300 rounded-full px-5 py-2 text-sm font-semibold text-gray-700 cursor-pointer"
           disabled={buttonLoading === "publish"}
+          className="px-3 py-1 text-xs sm:text-sm font-semibold text-gray-700 bg-amber-300 rounded-full hover:brightness-105 whitespace-nowrap"
         >
           {buttonLoading === "publish" ? (
             <span className="animate-spin w-4 h-4 border-2 border-t-transparent border-gray-700 rounded-full inline-block" />
@@ -155,8 +181,8 @@ export default function CreateFormPage() {
             "PUBLISH"
           )}
         </button>
-
       </div>
+
 
       {/* Main Form */}
       <div className="mt-16 p-6 gap-6 lg:ml-56 space-y-8">
