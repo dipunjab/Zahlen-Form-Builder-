@@ -54,6 +54,8 @@ export default function FormPage() {
       try {
         const res = await fetch(`/api/form/${formId}/responses/count`);
         const data = await res.json();
+        
+        
         if (data.success) {
           setForm((prev) => prev ? { ...prev, responseCount: data.count } : prev);
         }
