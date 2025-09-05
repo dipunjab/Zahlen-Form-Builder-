@@ -92,10 +92,41 @@ export default function FieldRenderer({
         return (
           <input
             type="file"
-            onChange={(e) => onChange(e.target.files?.[0])}
+            accept="image/png, image/jpeg, image/jpg, image/gif" // restrict file types
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+
+              // Additional frontend check just in case
+              const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/gif"];
+              if (!allowedTypes.includes(file.type)) {
+                alert("Only images (png, jpg, jpeg, gif) are allowed!");
+                return;
+              }
+
+              const formData = new FormData();
+              formData.append("file", file);
+
+              try {
+                const res = await fetch("/api/response/uploadfilefield", {
+                  method: "POST",
+                  body: formData,
+                });
+                const data = await res.json();
+                if (data.success) {
+                  onChange(data.url); 
+                } else {
+                  alert("Upload failed");
+                }
+              } catch (err) {
+                console.error(err);
+                alert("Upload error");
+              }
+            }}
             className={baseStyle}
           />
         );
+
       default:
         return <div>Unsupported field type</div>;
     }

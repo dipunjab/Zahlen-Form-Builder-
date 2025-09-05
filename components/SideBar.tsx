@@ -199,12 +199,12 @@ const SideBar: React.FC = () => {
 
             <div className="mt-1 font-semibold text-sm">Help</div>
             <div className="flex flex-col gap-1">
-              <a className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100 transition cursor-pointer text-sm">
+              <Link href="/getting-started" className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100 transition cursor-pointer text-sm">
                 <div className="w-4 h-4 relative">
                   <Image src="/icons/Arrowbold.png" alt="info" width={18} height={18} />
                 </div>
                 Getting Started
-              </a>
+              </Link>
               <a className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100 transition cursor-pointer text-sm">
                 <Info size={14} /> Contact Support
               </a>

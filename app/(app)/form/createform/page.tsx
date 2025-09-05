@@ -121,22 +121,18 @@ export default function CreateFormPage() {
 
       const data = await response.json();
       setButtonLoading(null);
+      console.log(data);
 
       if (!data.success) {
         toast.error("Error saving form");
         return;
       }
 
-      if (publish && data.form.publishedAt) {
-        toast.success("Form Published");
-        redirect("/dashboard")
-      } else {
-        toast.success("Form saved as draft");
-        redirect("/dashboard")
-      }
+      toast.success(publish ? "Form Published" : "Form saved as draft");
+      redirect("/dashboard");
+
     } catch (err) {
       console.error("Error creating form:", err);
-      toast.error("Something went wrong");
       setButtonLoading(null);
     }
   };
