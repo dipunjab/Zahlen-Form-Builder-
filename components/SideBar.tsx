@@ -192,9 +192,9 @@ const SideBar: React.FC = () => {
           <div className="flex flex-col gap-2">
             <div className="font-semibold text-sm">Product</div>
             <div className="flex flex-col gap-1">
-              <a className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100 transition cursor-pointer text-sm">
+              <Link href="/submit-feedback" className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100 transition cursor-pointer text-sm">
                 <MessageSquare size={14} /> Feedback
-              </a>
+              </Link>
             </div>
 
             <div className="mt-1 font-semibold text-sm">Help</div>
