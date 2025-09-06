@@ -6,15 +6,25 @@ export function downloadResponsesAsCSV(responses: {
   responses: {
     label: string;
     value: any;
-  }[];
+  }[]; 
 }[]) {
+  const parseValue = (value: any) => {
+    if (typeof value === "object" && value !== null) {
+      if ("url" in value && typeof value.url === "string") {
+        return value.url;
+      }
+      return JSON.stringify(value); // fallback
+    }
+    return String(value);
+  };
+
   const rows = responses.map((res) => {
     const row: Record<string, string> = {
-      "Submitted At": res.createdAt, 
+      "Submitted At": new Date(res.createdAt).toLocaleString(),
     };
 
     res.responses.forEach((field) => {
-      row[field.label] = String(field.value);
+      row[field.label] = parseValue(field.value);
     });
 
     return row;

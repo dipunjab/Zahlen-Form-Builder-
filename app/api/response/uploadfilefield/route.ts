@@ -20,17 +20,30 @@ export async function POST(req: NextRequest) {
 
     const uploadResult: any = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder: "form-fields" , resource_type: "auto" },
+        {
+          folder: "form-fields",
+          resource_type: "auto",
+        },
         (error, result) => {
           if (error) return reject(error);
           resolve(result);
         }
       );
 
-      stream.end(buffer); 
+      stream.end(buffer);
     });
 
-    return NextResponse.json({ success: true, url: uploadResult.secure_url });
+    // ✅ Don't construct URL — just use the correct one Cloudinary gives
+    const url = uploadResult.secure_url;
+
+    return NextResponse.json({
+      success: true,
+      url,
+      originalFilename: file.name,
+      mimetype: file.type,
+      extension: file.name.split(".").pop(),
+    });
+
   } catch (err) {
     console.error(err);
     return NextResponse.json({ success: false, error: "Upload failed" }, { status: 500 });

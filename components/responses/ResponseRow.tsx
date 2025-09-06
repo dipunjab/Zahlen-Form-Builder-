@@ -25,9 +25,22 @@ const ResponseRow = ({ response }: Props) => {
         </td>
         {firstThree.map((f, idx) => (
           <td key={idx} className="px-4 py-2 whitespace-nowrap text-gray-600 max-w-[150px] truncate">
-            {String(f.value)}
+            {typeof f.value === "object" && f.value?.url ? (
+              <a
+                href={f.value.url}
+                download={f.value.name}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                {f.value.name || "Download file"}
+              </a>
+            ) : (
+              String(f.value)
+            )}
           </td>
         ))}
+
         {[...Array(3 - firstThree.length)].map((_, idx) => (
           <td key={idx} className="px-4 py-2 whitespace-nowrap text-gray-400">—</td>
         ))}

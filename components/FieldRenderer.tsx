@@ -1,3 +1,4 @@
+import { UploadButton } from '@/lib/uploadingthing';
 import React from 'react';
 
 export default function FieldRenderer({
@@ -90,42 +91,56 @@ export default function FieldRenderer({
         );
       case 'file':
         return (
-          <input
-            type="file"
-            accept="image/png, image/jpeg, image/jpg, image/gif" // restrict file types
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-
-              // Additional frontend check just in case
-              const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/gif"];
-              if (!allowedTypes.includes(file.type)) {
-                alert("Only images (png, jpg, jpeg, gif) are allowed!");
-                return;
-              }
-
-              const formData = new FormData();
-              formData.append("file", file);
-
-              try {
-                const res = await fetch("/api/response/uploadfilefield", {
-                  method: "POST",
-                  body: formData,
-                });
-                const data = await res.json();
-                if (data.success) {
-                  onChange(data.url); 
-                } else {
-                  alert("Upload failed");
-                }
-              } catch (err) {
-                console.error(err);
-                alert("Upload error");
-              }
-            }}
-            className={baseStyle}
-          />
+          <div className="w-full">
+            <div className="p-2 border rounded">
+              {value?.url ? (
+                <div className="text-sm text-gray-700 space-y-1">
+                  <p className="text-green-600">
+                    ✅ Uploaded: <span className="font-medium">{value.name}</span>
+                  </p>
+                  <a
+                    href={value.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline text-sm"
+                  >
+                    View / Download
+                  </a>
+                  <button
+                    onClick={() => onChange(null)}
+                    className="text-red-500 text-sm underline mt-1"
+                  >
+                    Replace File
+                  </button>
+                </div>
+              ) : (
+                <UploadButton
+                  endpoint="formFieldUpload"
+                  appearance={{
+                    container: "w-full flex justify-center",
+                    button: "bg-black text-white px-4 py-2 rounded w-full",
+                    allowedContent: "text-gray-500 text-sm text-center mt-1",
+                  }}
+                  onClientUploadComplete={(res) => {
+                    const file = res[0];
+                    onChange({
+                      url: file.url,
+                      name: file.name,
+                      type: file.type,
+                    });
+                  }}
+                  onUploadError={(err) => {
+                    console.error("Upload failed", err);
+                    alert("Upload failed");
+                  }}
+                />
+              )}
+            </div>
+          </div>
         );
+
+
+
 
       default:
         return <div>Unsupported field type</div>;
