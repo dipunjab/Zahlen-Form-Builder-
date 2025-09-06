@@ -89,10 +89,20 @@ export const authOptions: NextAuthOptions = {
             if (account) {
                 token.provider = account.provider;
             }
+
+            const existingUser = await UserModel.findById(token._id);
+            if (!existingUser) {
+                return {};
+            }
             return token;
         },
 
         async session({ session, token }) {
+            if (!token._id) {
+                session.user = undefined as any;
+                return session;
+            }
+
             if (token) {
                 session.user._id = token._id;
                 session.user.username = token.username;

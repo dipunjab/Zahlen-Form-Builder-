@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
 
   // If NOT logged in and trying to access protected routes → send to home
   if (
-    !token &&(url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/form'))
+    !token &&(url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/form') || url.pathname.startsWith('/settings'))
   ) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
@@ -32,6 +32,7 @@ export const config = {
     '/sign-up',
     '/dashboard/:path*',
     '/verify/:path*',
-    '/form/:path*'
+    '/form/:path*',
+    '/settings/:path*'
   ],
 };
