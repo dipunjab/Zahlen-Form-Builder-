@@ -206,9 +206,9 @@ const SideBar: React.FC = () => {
                 </div>
                 Getting Started
               </Link>
-              <a className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100 transition cursor-pointer text-sm">
+              <Link href="/contact-us" className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100 transition cursor-pointer text-sm">
                 <Info size={14} /> Contact Support
-              </a>
+              </Link>
             </div>
           </div>
         </div>
