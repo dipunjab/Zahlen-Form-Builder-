@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import UserModel from '@/models/User';
 import FormModel from '@/models/Form';
 import ResponseForm from '@/models/ResponseForm';
+import dbConnect from '@/lib/dbConnect';
 
 export async function DELETE(req: NextRequest) {
+  await dbConnect();
   try {
     const { userId } = await req.json();
 

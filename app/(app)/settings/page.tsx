@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -49,7 +49,7 @@ export default function SettingsPage() {
 
       const data = await res.json();
       alert(data.message || 'Account deleted');
-      window.location.href = '/'; // redirect home or logout
+      await signOut({ callbackUrl: '/' });
     } catch (err) {
       console.error(err);
       alert('Failed to delete account');
