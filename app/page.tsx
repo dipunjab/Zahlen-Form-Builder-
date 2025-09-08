@@ -1,315 +1,228 @@
-"use client";
+"use client"
 
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { 
-  ArrowRight, 
-  BarChart3, 
-  FileText, 
-  Users, 
-  Zap, 
-  Shield, 
+import { Button } from '@/components/ui/button'
+import { signIn, signOut, useSession } from 'next-auth/react'
+import Image from 'next/image'
+import Link from 'next/link'
+import React from 'react'
+import {
+  FileText,
   Download,
-  Github,
-  Linkedin
-} from "lucide-react";
+  Share2,
+  ArrowRight,
+  CheckCircle
+} from 'lucide-react'
+import { redirect } from 'next/navigation'
 
 const Home = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50">
-      <header className="absolute top-0 left-0 right-0 z-50 p-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Image 
-              src="/images/logo.png" 
-              alt="Zahlen Logo" 
-              width={40} 
-              height={40} 
-            />
-            <span className="text-2xl font-bold text-gray-900">Zählen</span>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            {status === "loading" ? (
-              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
-            ) : session?.user ? (
-              <Link href="/dashboard" className="flex items-center gap-2">
-                {session.user.image ? (
-                  <Image
-                    src={session.user.image}
-                    alt="Profile"
-                    width={40}
-                    height={40}
-                    className="rounded-full border-2 border-[#FFBF00]"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-[#FFBF00] flex items-center justify-center text-black font-semibold">
-                    {session.user.name?.[0] || session.user.email?.[0] || "U"}
-                  </div>
-                )}
-                <span className="hidden sm:block text-gray-700">Dashboard</span>
-              </Link>
-            ) : (
-              <Link href="/sign-in">
-                <Button className="bg-[#FFBF00] hover:bg-[#FFBF00]/90 text-black font-semibold">
-                  Sign In
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <section className="relative min-h-screen flex items-center justify-center px-4 pt-20">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
-            <div>
-              <h1 className="text-5xl lg:text-7xl font-extrabold text-gray-900 leading-tight">
-                Build Forms 
-                <span className="block text-[#FFBF00]">That Actually</span>
-                <span className="block">Work</span>
-              </h1>
-              <p className="text-xl text-gray-600 mt-6 leading-relaxed">
-                Create beautiful, responsive forms in minutes. Collect responses, analyze data, 
-                and grow your business with our intuitive form builder.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href={session ? "/dashboard" : "/sign-up"}>
-                <Button className="bg-[#FFBF00] hover:bg-[#FFBF00]/90 text-black font-semibold text-lg px-8 py-6 rounded-full flex items-center gap-2">
-                  {session ? "Go to Dashboard" : "Start Building"}
-                  <ArrowRight size={20} />
-                </Button>
-              </Link>
-              
-              <Link href="/getting-started">
-                <Button variant="outline" className="border-2 border-gray-300 text-lg px-8 py-6 rounded-full hover:border-[#FFBF00] hover:text-[#FFBF00]">
-                  Learn More
-                </Button>
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-8 text-sm text-gray-500">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Free to start</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>No credit card required</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FFBF00]/20 to-orange-300/20 rounded-3xl blur-3xl"></div>
-            <div className="relative bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="h-4 bg-gray-100 rounded w-3/4"></div>
-                  <div className="h-8 bg-[#FFBF00]/20 rounded"></div>
-                  <div className="h-4 bg-gray-100 rounded w-1/2"></div>
-                  <div className="h-8 bg-[#FFBF00]/20 rounded"></div>
-                  <div className="flex gap-2">
-                    <div className="h-8 bg-[#FFBF00] rounded flex-1 flex items-center justify-center">
-                      <span className="text-black text-sm font-semibold">Submit</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div className='m-5'>
+      {/* Nav bar */}
+      <section className='flex justify-between items-center px-6 py-4'>
+        <div className='flex-shrink-0'>
+          <Image src="/images/logo.png" alt="logo" width={100} height={40} />
         </div>
 
-        <div className="absolute top-20 left-10 w-16 h-16 bg-[#FFBF00]/20 rounded-full blur-sm animate-pulse hidden lg:block"></div>
-        <div className="absolute bottom-32 right-20 w-24 h-24 bg-orange-300/20 rounded-full blur-md animate-pulse hidden lg:block"></div>
-      </section>
+        <div className='flex items-center space-x-4'>
+          <Link href="/getting-started" className="hover:underline">
+            Getting Started
+          </Link>
 
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Everything you need to build amazing forms
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              From simple contact forms to complex surveys, Zählen has all the tools 
-              you need to collect and manage responses effectively.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-[#FFBF00]/10 to-orange-100/10 border border-[#FFBF00]/20">
-              <div className="w-12 h-12 bg-[#FFBF00] rounded-lg flex items-center justify-center mb-4">
-                <FileText className="text-black" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Easy Form Builder</h3>
-              <p className="text-gray-600">
-                Drag and drop interface with multiple field types. Create professional forms in minutes without coding.
-              </p>
+          {session?.user?.image ? (
+            <div className='flex items-center space-x-2'>
+              <Link href="/dashboard">
+                <Image
+                  src={session.user.image}
+                  alt="User Avatar"
+                  width={40}
+                  height={40}
+                  className='rounded-full'
+                />
+              </Link>
+              <button
+                onClick={() => signOut()}
+                className='text-sm text-gray-500 hover:underline'
+              >
+                Sign out
+              </button>
             </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200">
-              <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4">
-                <BarChart3 className="text-white" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Real-time Analytics</h3>
-              <p className="text-gray-600">
-                Track responses in real-time with detailed analytics and insights to understand your data better.
-              </p>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-green-50 to-green-100/50 border border-green-200">
-              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4">
-                <Users className="text-white" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Team Collaboration</h3>
-              <p className="text-gray-600">
-                Share forms with your team, manage responses together, and collaborate seamlessly.
-              </p>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200">
-              <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4">
-                <Zap className="text-white" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Lightning Fast</h3>
-              <p className="text-gray-600">
-                Built for speed and performance. Your forms load instantly and work perfectly on all devices.
-              </p>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200">
-              <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mb-4">
-                <Shield className="text-white" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Secure & Reliable</h3>
-              <p className="text-gray-600">
-                Enterprise-grade security with SSL encryption. Your data is safe and always backed up.
-              </p>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-indigo-50 to-indigo-100/50 border border-indigo-200">
-              <div className="w-12 h-12 bg-indigo-500 rounded-lg flex items-center justify-center mb-4">
-                <Download className="text-white" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Export & Integrate</h3>
-              <p className="text-gray-600">
-                Export responses to CSV, Excel, or integrate with your favorite tools via API.
-              </p>
-            </div>
-          </div>
+          ) : (
+            <button
+              onClick={() => redirect('/sign-in')}
+              className='bg-[#FFBF00] text-black px-4 py-2 rounded hover:bg-orange-400 text-sm'
+            >
+              Login
+            </button>
+          )}
         </div>
       </section>
 
-      <section className="py-20 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              How Zählen Works
-            </h2>
-            <p className="text-xl text-gray-600">
-              Get started in just three simple steps
-            </p>
-          </div>
+      {/* Hero */}
+      <section className='bg-[#FFBF00] p-4 rounded-3xl'>
+        <div className='text-center w-[80%] m-auto'>
+          <h1 className='text-4xl lg:text-[60px] text-white font-bold'>You thought forms were boring? Plot twist.</h1>
+          <p className='text-[#273B4A] font-semibold text-[15px] lg:text-xl w-[80%] m-auto'>Build dazzling forms, collect smart responses, and feel like a genius all before your coffee gets cold.</p>
+          <Button className='mt-5 md:p-5 md:text-2xl'>Try Form</Button>
+        </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-[#FFBF00] rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-black">1</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Create Your Form</h3>
-              <p className="text-gray-600">
-                Use our intuitive drag-and-drop builder to create your perfect form in minutes.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-[#FFBF00] rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-black">2</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Share & Collect</h3>
-              <p className="text-gray-600">
-                Share your form via link, embed it on your website, or send it directly to respondents.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-[#FFBF00] rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-black">3</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Analyze Results</h3>
-              <p className="text-gray-600">
-                View responses in real-time, analyze data with built-in tools, and export when needed.
-              </p>
-            </div>
-          </div>
+        <div className='flex justify-center items-center mt-10 relative mb-5'>
+          <Image src="/images/fire.png" alt='firehero' width={500} height={100} />
+          <Image src="/images/shothero.png" alt='shothero' width={600} height={100} className='absolute mt-60' />
         </div>
       </section>
 
-      <section className="py-20 px-4 bg-gradient-to-r from-[#FFBF00] to-orange-400">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-black mb-4">
-            Ready to build your first form?
+      {/* Features Section */}
+      <section className='mt-28 bg-white p-8 rounded-3xl shadow-sm border border-gray-100'>
+        <div className='text-center mb-12'>
+          <h2 className='text-3xl lg:text-5xl font-bold text-gray-900 mb-4'>
+            What you can do with <span className='text-[#FFBF00]'>Zählen</span>
           </h2>
-          <p className="text-xl text-black/80 mb-8">
-            Join thousands of users who trust Zählen for their form building needs.
+          <p className='text-[#273B4A] text-lg w-[70%] m-auto'>
+            Build forms, collect data, and manage everything in one place.
           </p>
-          
-          <Link href={session ? "/dashboard" : "/sign-up"}>
-            <Button className="bg-black hover:bg-gray-800 text-white font-semibold text-lg px-8 py-6 rounded-full">
-              {session ? "Go to Dashboard" : "Get Started Free"}
+        </div>
+
+        <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto'>
+          {/* Create Form */}
+          <div className='text-center p-6 rounded-2xl bg-gradient-to-br from-[#FFBF00]/10 to-orange-100/20 border border-[#FFBF00]/20'>
+            <div className='w-16 h-16 bg-[#FFBF00] rounded-2xl flex items-center justify-center mx-auto mb-4'>
+              <FileText className='text-black' size={32} />
+            </div>
+            <h3 className='text-xl font-bold text-gray-900 mb-3'>Create Stunning Forms</h3>
+            <p className='text-[#273B4A]'>Design professional forms with ease. Simple, clean, and effective.</p>
+          </div>
+
+          {/* Share Form */}
+          <div className='text-center p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200'>
+            <div className='w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4'>
+              <Share2 className='text-white' size={32} />
+            </div>
+            <h3 className='text-xl font-bold text-gray-900 mb-3'>Share & Collect</h3>
+            <p className='text-[#273B4A]'>Share via link and start collecting responses instantly.</p>
+          </div>
+
+          {/* Download Responses */}
+          <div className='text-center p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-100/50 border border-green-200'>
+            <div className='w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4'>
+              <Download className='text-white' size={32} />
+            </div>
+            <h3 className='text-xl font-bold text-gray-900 mb-3'>Download Responses</h3>
+            <p className='text-[#273B4A]'>Export your collected responses as CSV with a click.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className='mt-16 bg-gradient-to-r from-[#FFBF00] to-orange-400 p-12 rounded-3xl text-center'>
+        <h2 className='text-3xl lg:text-5xl font-bold text-black mb-6'>
+          Ready to build your first form?
+        </h2>
+        <p className='text-[#273B4A] text-xl mb-8 w-[70%] m-auto font-semibold'>
+          Join thousands of users who trust Zählen for their form building needs. Start creating beautiful forms today!
+        </p>
+
+        <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
+          {session ? (
+            <Link href="/dashboard">
+              <Button className='bg-black hover:bg-gray-800 text-white font-semibold text-lg px-12 py-6 rounded-full flex items-center gap-2'>
+                Go to Dashboard
+                <ArrowRight size={20} />
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              onClick={() => redirect('/sign-in')}
+              className='bg-black hover:bg-gray-800 text-white font-semibold text-lg px-12 py-6 rounded-full flex items-center gap-2'
+            >
+              Get Started Free
+              <ArrowRight size={20} />
+            </Button>
+          )}
+
+          <Link href="/getting-started">
+            <Button variant="outline" className='border-2 border-black text-black hover:bg-black hover:text-white font-semibold text-lg px-8 py-6 rounded-full'>
+              Learn More
             </Button>
           </Link>
         </div>
+
+        <div className='flex items-center justify-center gap-8 mt-8 text-sm text-[#273B4A] font-semibold'>
+          <div className='flex items-center gap-2'>
+            <CheckCircle className='text-green-600' size={20} />
+            <span>Free to start</span>
+          </div>
+          <div className='flex items-center gap-2'>
+            <CheckCircle className='text-green-600' size={20} />
+            <span>No credit card required</span>
+          </div>
+          <div className='flex items-center gap-2'>
+            <CheckCircle className='text-green-600' size={20} />
+            <span>Cancel anytime</span>
+          </div>
+        </div>
       </section>
 
-      <footer className="py-8 px-4 bg-gray-900 text-white">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
-          <div className="flex items-center gap-2 mb-4 md:mb-0">
-            <Image 
-              src="/images/logo.png" 
-              alt="Zahlen Logo" 
-              width={32} 
-              height={32} 
+      {/* Footer */}
+      {/* Footer */}
+      <footer className='mt-16 bg-white py-6 border-t border-gray-200'>
+        <div className='max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between px-4'>
+
+          {/* Left: Logo and Text */}
+          <div className='flex items-center gap-2'>
+            <Image
+              src="/images/logo.png"
+              alt="Zählen Logo"
+              width={100}
+              height={20}
             />
-            <span className="text-xl font-bold">Zählen</span>
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link 
-              href="https://github.com/dipunjab/Zahlen-Form-Builder-" 
-              target="_blank"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <Github size={24} />
-            </Link>
-            <Link 
-              href="https://www.linkedin.com/in/usmanghani-js/" 
-              target="_blank"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <Linkedin size={24} />
-            </Link>
+          <div className='text-sm text-gray-500 mt-2 md:mt-0'>
+            © {new Date().getFullYear()} Zählen. All rights reserved.
           </div>
 
-          <div className="text-sm text-gray-400 mt-4 md:mt-0">
-            © 2025 Zählen. All rights reserved.
+          <div className='flex items-center gap-4 mt-2 md:mt-0'>
+            <a
+              href="https://github.com/dipunjab/Zahlen-Form-Builder-"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-black transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={20}
+                height={20}
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 .5C5.66.5.5 5.66.5 12a11.5 11.5 0 008.02 10.95c.6.11.82-.26.82-.58v-2.14c-3.26.71-3.95-1.57-3.95-1.57a3.12 3.12 0 00-1.32-1.73c-1.08-.74.08-.73.08-.73a2.5 2.5 0 011.83 1.23 2.53 2.53 0 003.44 1 2.52 2.52 0 01.75-1.58c-2.6-.3-5.34-1.3-5.34-5.77a4.52 4.52 0 011.2-3.13 4.2 4.2 0 01.12-3.09s.98-.31 3.2 1.2a11.1 11.1 0 015.82 0c2.22-1.5 3.2-1.2 3.2-1.2a4.2 4.2 0 01.12 3.09 4.51 4.51 0 011.2 3.13c0 4.48-2.75 5.46-5.36 5.75a2.84 2.84 0 01.81 2.2v3.27c0 .32.21.7.83.58A11.5 11.5 0 0023.5 12C23.5 5.66 18.34.5 12 .5z" />
+              </svg>
+            </a>
+
+            <a
+              href="https://www.linkedin.com/in/usmanghani-js/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-black transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={20}
+                height={20}
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M20.45 20.45h-3.6v-5.4c0-1.29-.03-2.94-1.79-2.94-1.79 0-2.06 1.4-2.06 2.85v5.49h-3.6V9h3.45v1.56h.05c.48-.91 1.65-1.87 3.4-1.87 3.63 0 4.3 2.39 4.3 5.5v6.26zM5.34 7.43a2.08 2.08 0 110-4.15 2.08 2.08 0 010 4.15zM7.14 20.45H3.54V9h3.6v11.45zM22.23 0H1.77C.8 0 0 .77 0 1.72v20.55C0 23.23.8 24 1.77 24h20.45c.97 0 1.78-.77 1.78-1.73V1.72C24 .77 23.2 0 22.23 0z" />
+              </svg>
+            </a>
           </div>
         </div>
       </footer>
-    </div>
-  );
-};
 
-export default Home;
+    </div>
+  )
+}
+
+export default Home
