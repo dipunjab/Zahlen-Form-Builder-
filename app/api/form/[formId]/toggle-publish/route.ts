@@ -4,7 +4,7 @@ import Form from "@/models/Form";
 
 export async function PATCH(
   req: NextRequest,
-  {params}: { params: { formId: string } }
+  {params}: any
 ) {
   await dbConnect();
 
