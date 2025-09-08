@@ -105,7 +105,7 @@ const SignIn = () => {
         <fieldset>
           <button
             className="cursor-pointer w-full border border-gray-300 rounded py-2 flex items-center justify-center gap-2 hover:bg-gray-50 transition"
-            onClick={() => signIn('google')}
+            onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
           >
             <Image src="/icons/google.png" alt="Google" width={20} height={20} />
             <span>Continue with Google</span>

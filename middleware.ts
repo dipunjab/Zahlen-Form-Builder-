@@ -1,38 +1,43 @@
-import { getToken } from 'next-auth/jwt';
-import { NextResponse, NextRequest } from 'next/server';
+// middleware.ts
+import { getToken } from 'next-auth/jwt'
+import { NextResponse, NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
-  const url = request.nextUrl;
+  const token = await getToken({ req: request })
 
-  if (
-    token &&
-    (
-      url.pathname.startsWith('/sign-in') ||
-      url.pathname.startsWith('/sign-up') ||
-      url.pathname.startsWith('/verify') 
-    )
-  ) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  const url = request.nextUrl
+  const isAuth = !!token
+  const isAuthPage =
+    url.pathname.startsWith('/sign-in') ||
+    url.pathname.startsWith('/sign-up') ||
+    url.pathname.startsWith('/verify')
+
+  if (url.pathname.startsWith('/api/auth')) {
+    return NextResponse.next()
   }
 
-  // If NOT logged in and trying to access protected routes → send to home
-  if (
-    !token &&(url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/form') || url.pathname.startsWith('/settings'))
-  ) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+  if (isAuth && isAuthPage) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  return NextResponse.next();
+  const protectedPaths = ['/dashboard', '/form', '/settings']
+  const isProtected = protectedPaths.some(path => url.pathname.startsWith(path))
+
+  if (!isAuth && isProtected) {
+    return NextResponse.redirect(new URL('/sign-in', request.url))
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {
   matcher: [
     '/sign-in',
     '/sign-up',
-    '/dashboard/:path*',
     '/verify/:path*',
+    '/dashboard/:path*',
     '/form/:path*',
-    '/settings/:path*'
+    '/settings/:path*',
+    '/api/auth/:path*', 
   ],
-};
+}
