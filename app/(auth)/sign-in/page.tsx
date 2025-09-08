@@ -78,7 +78,7 @@ const SignIn = () => {
             />
 
             <div className="text-right">
-              <Link href="/forgot-password" className="text-sm text-[#FFBF00] hover:underline">
+              <Link href="#" className="text-sm text-[#FFBF00] hover:underline">
                 Forgot password?
               </Link>
             </div>
