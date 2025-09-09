@@ -25,13 +25,14 @@ const Dashboard = () => {
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(false);
 
+  
+
   useEffect(() => {
-    if (!session?.user?._id) return;
 
     const fetchForms = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/form?userId=${session.user._id}`);
+        const res = await fetch(`/api/form?userId=${session?.user._id}`);
         const data = await res.json();
         if (data.success) setForms(data.forms);
       } catch (err) {

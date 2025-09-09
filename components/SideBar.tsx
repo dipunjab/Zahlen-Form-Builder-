@@ -104,7 +104,7 @@ const SideBar: React.FC = () => {
                 <div className="w-9 h-9 rounded-full overflow-hidden border flex-shrink-0">
                   <Image
                     src={avatarSrc}
-                    alt={session?.user?.name || "User"}
+                    alt={session?.user?.username || "User"}
                     width={36}
                     height={36}
                     style={{ objectFit: "cover" }}
@@ -114,7 +114,7 @@ const SideBar: React.FC = () => {
 
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium leading-4 truncate">
-                    {session?.user?.name || "User"}
+                    {session?.user?.username || "User"}
                   </p>
                 </div>
 

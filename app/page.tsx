@@ -10,7 +10,8 @@ import {
   Download,
   Share2,
   ArrowRight,
-  CheckCircle
+  CheckCircle,
+  User
 } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
@@ -30,16 +31,18 @@ const Home = () => {
             Getting Started
           </Link>
 
-          {session?.user?.image ? (
+          {session?.user? (
             <div className='flex items-center space-x-2'>
               <Link href="/dashboard">
+              {session?.user?.image ? (
                 <Image
-                  src={session.user.image}
-                  alt="User Avatar"
-                  width={40}
-                  height={40}
-                  className='rounded-full'
+                src={session?.user?.image}
+                alt="User Avatar"
+                width={40}
+                height={40}
+                className='rounded-full'
                 />
+              ): <User/>}
               </Link>
               <button
                 onClick={() => signOut()}
